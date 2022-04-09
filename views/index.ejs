@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Todos</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:Roboto:400,500,600|Oswald:600">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+<div class="wrapper">
+    <header>
+        <div class="date">
+            <div id="month" class="month">may</div>
+            <div id="day" class="day">23</div>
+        </div>
+        <h1>Today</h1>
+        <div class="menu-container">
+            <a href="#menu" id="toggle"><span><i class="fas fa-ellipsis-h"></i></span></a>
+            <div id="menu">
+                <ul>
+                    <li><a href="#c">Completed</a></li>
+                    <li><a href="#i">In progress</a></li>
+                    <li><a href="#r">Removed</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="todo-container">
+            <ul class="todo-list">
+                <% for(var i = 0; i < todos.length; i++){ %>
+                    <% if(todos[i].status === 0){ %>
+                    <li class="todo-item">
+                        <input type="checkbox" name="todo" id="<%= i %>" value="<%= todos[i].id %>"
+                               onclick='moveTask(event,"<%= todos[i].id %>")'>
+                        <span class="todo-item__checkbox" onclick='moveTask(event,"<%= todos[i].id %>")'><i
+                                    onclick='moveTask(event,"<%= todos[i].id %>")' class="fa fa-check"></i></span>
+                        </input>
+                        <label for="<%= i %>"><%= todos[i].task %></label>
+                        <button class="todo-item__circle delete" onclick='removeTask("<%= todos[i].id %>")'><i
+                                    class="fa fa-plus"></i></button>
+                    </li>
+                    <% } %>
+                <% } %>
+
+                <% for(var i = 0; i < todos.length; i++){ %>
+                    <% if(todos[i].status === 1){ %>
+                    <li class="todo-item completed">
+                        <input type="checkbox" name="done" id="<%= i %>" value="<%= todos[i].id %>"
+                               onclick='moveTask(event,"<%= todos[i].id %>")'><span class="todo-item__checkbox"><i
+                                    class="fa fa-check"></i></span></input>
+                        <label for="<%= i %>"><%= todos[i].task %></label>
+                        <button class="todo-item__circle delete" onclick='removeTask("<%= todos[i].id %>")'><i
+                                    class="fa fa-plus"></i></button>
+                    </li>
+                    <% } %>
+                <% } %>
+                <% for(var i = 0; i < todos.length; i++){ %>
+                    <% if(todos[i].status === 3){ %>
+                    <li class="todo-item removed">
+                        <input type="checkbox" name="done" id="<%= i %>" value="<%= todos[i].id %>"
+                               onclick='moveTask(event,"<%= todos[i].id %>")'><span class="todo-item__checkbox"><i
+                                    class="fa fa-check"></i></span></input>
+                        <label for="<%= i %>"><%= todos[i].task %></label>
+                    </li>
+                    <% } %>
+                <% } %>
+            </ul>
+        </div>
+
+        <form class="todo-new" action="/addTask" method="POST">
+            <button type="submit" class="todo-button todo-item__circle">
+                <i class="fa fa-plus"></i>
+            </button>
+            <input type="text" class="todo-input" name="textTodo" placeholder="Create new item">
+        </form>
+    </main>
+</div>
+</body>
+</html>
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="script.js"></script>
+<script>
+    function getMonth() {
+        const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+        ];
+        const d = new Date();
+        return monthNames[d.getMonth()]
+    }
+
+    document.getElementById('month').innerText = getMonth();
+
+    function getDay() {
+        let dateObj = new Date();
+        let day = String(dateObj.getUTCDate());
+        if (day.length < 2) {
+            day = '0' + day
+        }
+        return day
+    }
+
+    document.getElementById('day').innerText = getDay()
+
+    function useFilter(event) {
+        console.log(event.target.href);
+        let href = event.target.href.split('#')[1];
+        const elements = Array.from(document.getElementsByClassName('todo-item'))
+        switch (href) {
+            case 'c':
+                elements.forEach(el => {
+                    if (el.classList.contains('completed')) {
+                        el.style.display = ''
+                    } else {
+                        el.style.display = 'none'
+                    }
+                })
+                break;
+            case 'i':
+                elements.forEach(el => {
+                    if (!el.classList.contains('completed') && !el.classList.contains('removed')) {
+                        el.style.display = ''
+                    } else {
+                        el.style.display = 'none'
+                    }
+                })
+                break;
+            case 'r':
+                elements.forEach(el => {
+                    if (el.classList.contains('removed')) {
+                        el.style.display = 'flex'
+                    } else {
+                        el.style.display = 'none'
+                    }
+                })
+                break;
+        }
+    }
+
+    ['c', 'i', 'r'].forEach(id => {
+        const el = document.querySelector(`a[href="#${id}"]`)
+        el.addEventListener('click', useFilter)
+    })
+
+    function moveTask(event, id) {
+        const {name} = event.target;
+
+        fetch("http://127.0.0.1:8080/moveTaskDone", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name,
+                id
+            })
+        }).then(response => response.json()).then(status => {
+            console.log(status);
+            window.location.reload()
+
+        }).catch(err => console.log(err))
+    }
+
+    function removeTask(id) {
+
+        fetch("http://127.0.0.1:8080/removeTask", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id
+            })
+        }).then(response => response.json()).then(status => {
+            console.log(status);
+            window.location.reload()
+
+        }).catch(err => console.log(err))
+    }
+
+
+    function deleteTask(id) {
+
+        fetch("http://127.0.0.1:8080/deleteTask", {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id
+            })
+        }).then(response => response.json()).then(() => {
+            window.location.reload()
+
+        }).catch(err => console.log(err))
+    }
+</script>

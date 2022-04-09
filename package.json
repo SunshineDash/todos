@@ -1,0 +1,31 @@
+{
+  "name": "todolist",
+  "version": "1.0.0",
+  "description": "ToDo List",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Monotnost/ToDo.git"
+  },
+  "author": "Kirill, Nikita, Nikita",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Monotnost/ToDo/issues"
+  },
+  "homepage": "https://github.com/Monotnost/ToDo#readme",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.3",
+    "knex": "^1.0.5",
+    "pg": "^8.7.3",
+    "psql": "^0.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
