@@ -105,5 +105,6 @@ app.put("/removeTask", (req, res) => {
         .then(task => {res.json(task[0])});
 });
 
-app.listen(8080, () => console.log("app is running on port 8080"));
+const port = process.env.PORT || 8080
+app.listen(port, () => console.log(`app is running on port ${port}`));
 
